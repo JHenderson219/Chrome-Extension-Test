@@ -19,32 +19,46 @@ function tsvObj(tsv){
  
   }
   
-  //return result; //JavaScript object
-  return result; //JSON
+  return result;
+  //Thanks to iwek on GitHub for the initial idea for this code! github.com/iwek || https://gist.github.com/iwek/7154706
 }
 
+let headersSelectors = {};
 
-var currentFile, currentObj, parsedJSON;
 $("#printFile").on("click", function(){
-  var selectedRow = document.getElementById("rowSelector").value;
-  console.log(selectedRow);
-  currentFile = document.getElementById("uploadedFile").files[0];
-  console.log(currentFile);
+  let selectedRow = document.getElementById("rowSelector").value;
+  let currentFile = document.getElementById("uploadedFile").files[0];
   if (currentFile){
-    var reader = new FileReader();
+    let reader = new FileReader();
     reader.readAsText(currentFile, "UTF-8");
     reader.onload = function (evt){
-      currentObj = tsvObj(evt.target.result);
-      console.log(currentObj);
+      let currentObj = tsvObj(evt.target.result);
       const headers = Object.keys(currentObj[0]);
-      console.log(headers);
       $("#printArea").empty()
       headers.map(function(e,i){
         $("#printArea").append("<br><p id='header"+i+"'>"+e+"</p>")
       });
       headers.map(function(e,i){
-        $("#header"+i).append("<br><p id='column"+i+"'>"+currentObj[selectedRow][e]+"</p>")
+        let label=i+1;
+        $("#header"+i).append("<br><label for='column"+label+"'>#"+label+"</label><input readonly class='selectBox' type='text' id='column"+i+"'value='"+currentObj[selectedRow][e]+"'>")
+      });
+      headers.map(function(e,i){
+        headersSelectors[i+1]=e;
+        console.log(headersSelectors);
       });
     }
   }
 });
+function doc_keyUp(e){
+//  if(e.shiftKey)
+}
+
+document.onkeypress = function (e){
+  e = e;
+  let val = e.key;
+  let tgt = val-1
+  if(headersSelectors.hasOwnProperty(val)){
+    console.log(val);
+    $("#column"+tgt).focus().select();
+  }
+}
